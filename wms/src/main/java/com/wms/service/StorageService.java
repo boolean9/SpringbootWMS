@@ -16,5 +16,6 @@ import com.wms.entity.User;
  */
 public interface StorageService extends IService<Storage> {
 
+    //分页查询
     IPage pageCC(IPage<Storage> page, Wrapper wrapper);
 }

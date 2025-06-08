@@ -15,5 +15,6 @@ import com.wms.entity.Storage;
  * @since 2022-10-15
  */
 public interface GoodstypeService extends IService<Goodstype> {
+
     IPage pageCC(IPage<Goodstype> page, Wrapper wrapper);
 }

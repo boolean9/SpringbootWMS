@@ -7,6 +7,9 @@ import java.util.HashMap;
 @Data
 public class QueryPageParam {
     //默认
+    /**
+     * 查询分页
+     */
     private static int PAGE_SIZE=20;
     private static int PAGE_NUM=1;
 

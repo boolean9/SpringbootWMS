@@ -16,5 +16,6 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface RecordService extends IService<Record> {
 
+
     IPage pageCC(IPage<Record> page, Wrapper wrapper);
 }

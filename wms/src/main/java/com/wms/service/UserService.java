@@ -17,7 +17,18 @@ import com.baomidou.mybatisplus.extension.service.IService;
  */
 public interface UserService extends IService<User> {
 
+    /**
+     * 自定义分页查询
+     * @param page
+     * @return
+     */
     IPage pageC(IPage<User> page);
 
+    /**
+     * 自定义条件分页查询
+     * @param page
+     * @param wrapper
+     * @return
+     */
     IPage pageCC(IPage<User> page, Wrapper wrapper);
 }

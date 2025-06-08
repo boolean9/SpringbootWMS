@@ -105,6 +105,11 @@ public class UserController {
         return Result.suc(userService.list(lambdaQueryWrapper));
     }
 
+    /**
+     * 分页查询
+     * @param query
+     * @return
+     */
     @PostMapping("/listPage")
 //    public List<User> listPage(@RequestBody HashMap map){
     public List<User> listPage(@RequestBody QueryPageParam query){
@@ -132,6 +137,12 @@ public class UserController {
         return result.getRecords();
     }
 
+    /**
+     * 编写分页的mapper方法
+     * 加入IPage参数
+     * @param query
+     * @return
+     */
     @PostMapping("/listPageC")
     public List<User> listPageC(@RequestBody QueryPageParam query){
         HashMap param = query.getParam();
@@ -155,6 +166,12 @@ public class UserController {
 
         return result.getRecords();
     }
+
+    /**
+     * 使用Wrapper自定义sql
+     * @param query
+     * @return
+     */
 
     @PostMapping("/listPageC1")
     public Result listPageC1(@RequestBody QueryPageParam query){

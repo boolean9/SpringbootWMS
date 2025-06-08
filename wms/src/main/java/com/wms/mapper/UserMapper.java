@@ -21,5 +21,11 @@ public interface UserMapper extends BaseMapper<User> {
 
     IPage pageC(IPage<User> page);
 
+    /**
+     * 自定义sql
+     * @param page
+     * @param wrapper
+     * @return
+     */
     IPage pageCC(IPage<User> page, @Param(Constants.WRAPPER) Wrapper wrapper);
 }
