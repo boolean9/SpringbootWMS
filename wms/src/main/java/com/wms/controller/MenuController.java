@@ -28,6 +28,8 @@ public class MenuController {
 
     @Autowired
     private MenuService menuService;
+
+
     @GetMapping("/list")
     public Result list(@RequestParam String roleId){
         List list = menuService.lambdaQuery().like(Menu::getMenuright,roleId).list();

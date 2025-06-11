@@ -38,6 +38,12 @@ public class UserController {
     public List<User> list(){
         return userService.list();
     }
+
+    /**
+     * 根据用户名查询
+     * @param no
+     * @return
+     */
     @GetMapping("/findByNo")
     public Result findByNo(@RequestParam String no){
         List list = userService.lambdaQuery().eq(User::getNo,no).list();
@@ -63,10 +69,10 @@ public class UserController {
     @PostMapping("/login")
     public Result login(@RequestBody User user){
         List list = userService.lambdaQuery()
-                .eq(User::getNo,user.getNo())
-                .eq(User::getPassword,user.getPassword()).list();
+                .eq(User::getNo,user.getNo())//匹配账号
+                .eq(User::getPassword,user.getPassword()).list();//匹配密码
 
-
+        //登录成功，查询菜单权限
         if(list.size()>0){
             User user1 = (User)list.get(0);
             List menuList = menuService.lambdaQuery().like(Menu::getMenuright,user1.getRoleId()).list();
@@ -188,9 +194,11 @@ public class UserController {
         if(StringUtils.isNotBlank(name) && !"null".equals(name)){
             lambdaQueryWrapper.like(User::getName,name);
         }
+        //性别
         if(StringUtils.isNotBlank(sex)){
             lambdaQueryWrapper.eq(User::getSex,sex);
         }
+        //角色id
         if(StringUtils.isNotBlank(roleId)){
             lambdaQueryWrapper.eq(User::getRoleId,roleId);
         }
