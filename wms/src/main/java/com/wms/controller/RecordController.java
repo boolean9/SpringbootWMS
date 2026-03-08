@@ -1,92 +1,87 @@
 package com.wms.controller;
 
-
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.wms.common.InventoryActionUtils;
 import com.wms.common.QueryPageParam;
 import com.wms.common.Result;
-import com.wms.entity.Goods;
 import com.wms.entity.Record;
-import com.wms.service.GoodsService;
+import com.wms.service.InventoryFlowService;
 import com.wms.service.RecordService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
 
-/**
- * <p>
- *  前端控制器
- * </p>
- *
- * @author wms
- * @since 2022-10-16
- */
 @RestController
 @RequestMapping("/record")
 public class RecordController {
 
-    @Autowired
+    @Resource
     private RecordService recordService;
 
-    @Autowired
-    private GoodsService goodsService;
-    @PostMapping("/listPage")
-    public Result listPage(@RequestBody QueryPageParam query){
-        HashMap param = query.getParam();
-        String name = (String)param.get("name");
-        String goodstype = (String)param.get("goodstype");
-        String storage = (String)param.get("storage");
-        String roleId = (String)param.get("roleId");
-        String userId = (String)param.get("userId");
+    @Resource
+    private InventoryFlowService inventoryFlowService;
 
-        Page<Record> page = new Page();
+    @PostMapping("/listPage")
+    public Result listPage(@RequestBody QueryPageParam query) {
+        HashMap param = query.getParam();
+        String name = (String) param.get("name");
+        String goodstype = (String) param.get("goodstype");
+        String storage = (String) param.get("storage");
+        String roleId = (String) param.get("roleId");
+        String userId = (String) param.get("userId");
+        String actionType = (String) param.get("actionType");
+        String batchNo = (String) param.get("batchNo");
+        String supplierId = (String) param.get("supplierId");
+
+        Page<Record> page = new Page<>();
         page.setCurrent(query.getPageNum());
         page.setSize(query.getPageSize());
 
-        QueryWrapper<Record> queryWrapper = new QueryWrapper();
-        queryWrapper.apply(" a.goods=b.id and b.storage=c.id and b.goodsType=d.id ");
+        QueryWrapper<Record> wrapper = new QueryWrapper<>();
+        if ("2".equals(roleId) && StringUtils.isNotBlank(userId)) {
+            wrapper.eq("a.userId", userId);
+        }
+        if (StringUtils.isNotBlank(name) && !"null".equals(name)) {
+            wrapper.like("b.name", name);
+        }
+        if (StringUtils.isNotBlank(goodstype) && !"null".equals(goodstype)) {
+            wrapper.eq("d.id", goodstype);
+        }
+        if (StringUtils.isNotBlank(storage) && !"null".equals(storage)) {
+            wrapper.eq("c.id", storage);
+        }
+        if (StringUtils.isNotBlank(actionType) && !"null".equals(actionType)) {
+            wrapper.apply(
+                    "coalesce(a.action_type, case when a.count < 0 then 'OUTBOUND' else 'INBOUND' end) = {0}",
+                    InventoryActionUtils.normalize(actionType, actionType)
+            );
+        }
+        if (StringUtils.isNotBlank(batchNo) && !"null".equals(batchNo)) {
+            wrapper.like("gb.batch_no", batchNo);
+        }
+        if (StringUtils.isNotBlank(supplierId) && !"null".equals(supplierId)) {
+            wrapper.eq("a.supplier_id", supplierId);
+        }
+        wrapper.orderByDesc("a.createtime");
 
-        if("2".equals(roleId)){
-           // queryWrapper.eq(Record::getUserid,userId);
-            queryWrapper.apply(" a.userId= "+userId);
-        }
-
-        if(StringUtils.isNotBlank(name) && !"null".equals(name)){
-            queryWrapper.like("b.name",name);
-        }
-        if(StringUtils.isNotBlank(goodstype) && !"null".equals(goodstype)){
-            queryWrapper.eq("d.id",goodstype);
-        }
-        if(StringUtils.isNotBlank(storage) && !"null".equals(storage)){
-            queryWrapper.eq("c.id",storage);
-        }
-
-        IPage result = recordService.pageCC(page,queryWrapper);
-        return Result.suc(result.getRecords(),result.getTotal());
+        IPage result = recordService.pageCC(page, wrapper);
+        return Result.suc(result.getRecords(), result.getTotal());
     }
-    //新增
+
     @PostMapping("/save")
-    public Result save(@RequestBody Record record){
-        Goods goods = goodsService.getById(record.getGoods());
-        int n = record.getCount();
-        //出库
-        if("2".equals(record.getAction())){
-             n = -n;
-             record.setCount(n);
+    public Result save(@RequestBody Record record) {
+        try {
+            inventoryFlowService.processRecord(record);
+            return Result.suc();
+        } catch (RuntimeException ex) {
+            return Result.fail(ex.getMessage());
         }
-
-        int num = goods.getCount()+n;
-        goods.setCount(num);
-        goodsService.updateById(goods);
-
-        return recordService.save(record)?Result.suc():Result.fail();
     }
 }

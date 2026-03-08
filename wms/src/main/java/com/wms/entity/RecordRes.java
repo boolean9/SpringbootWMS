@@ -10,4 +10,6 @@ public class RecordRes extends  Record{
     private String goodsname;
     private String storagename;
     private String goodstypename;
+    private String batchNo;
+    private String supplierName;
 }

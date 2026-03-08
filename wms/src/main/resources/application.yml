@@ -7,7 +7,24 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     username: root
     password: 123456
+  mail:
+    host: localhost
+    port: 25
+    username: ""
+    password: ""
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
 
 logging:
   level:
     com.wms: debug
+
+wms:
+  alert:
+    mail:
+      enabled: false
+      recipients: ""

@@ -29,6 +29,9 @@ public class User implements Serializable {
 
     private String phone;
 
+    @TableField(exist = false)
+    private String email;
+
     private Integer roleId;
 
     @TableField("isValid")

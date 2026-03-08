@@ -27,4 +27,19 @@ public class Goods implements Serializable {
     private Integer count;
 
     private String remark;
+
+    @TableField(exist = false)
+    private String barcode;
+
+    @TableField(exist = false)
+    private String rfidTag;
+
+    @TableField(exist = false)
+    private Integer minStock;
+
+    @TableField(exist = false)
+    private Integer maxStock;
+
+    @TableField(exist = false)
+    private Integer supplierId;
 }

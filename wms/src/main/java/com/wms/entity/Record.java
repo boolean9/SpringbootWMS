@@ -35,6 +35,18 @@ public class Record implements Serializable {
 
     private String remark;
 
+    @TableField("batch_id")
+    private Integer batchId;
+
+    @TableField("supplier_id")
+    private Integer supplierId;
+
+    @TableField("action_type")
+    private String actionType;
+
+    @TableField("scan_code")
+    private String scanCode;
+
     @TableField(exist = false)
     private String action;
 }
